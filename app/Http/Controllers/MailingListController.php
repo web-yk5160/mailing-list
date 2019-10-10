@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\MailingList;
+use App\Components\Filters\MailingListFilter;
+use App\Http\Requests\UploadMailingListRequest;
 use Excel;
 use Illuminate\View\View;
 use Illuminate\Support\Collection;
-use App\Http\Requests\UploadMailingListRequest;
+
 
 
 class MailingListController extends Controller
@@ -34,6 +37,17 @@ class MailingListController extends Controller
             Excel::load($file)->get()->toArray()
         );
 
-        return view('mailing-list.result');
+        $filter = new MailingListFilter(
+            $collection,
+
+        );
+
+        MailingList::insert($subscriber);
+
+        unlink($file);
+
+        return view('mailing-list.result')
+             ->with('subscriber', $subscriber)
+             ->with('errorBug', $filter->errorBug);
     }
 }
